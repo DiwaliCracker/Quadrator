@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quadratr</title>
+    <title>Dynamic Video Generator</title>
 </head>
 <body>
     <div id="video-container"></div>
@@ -25,7 +25,7 @@
 
             const videoSrc = params['sr'] || '';
             const poster = params['poster'] || '';
-            const imdbid = params['imdbid'] || '';
+            const imdbId = params['imdbId'] || '';
             const title = params['title'] || '';
             
             const container = document.getElementById('video-container');
@@ -36,7 +36,7 @@
             video.setAttribute('controls', '');
             video.setAttribute('poster', poster);
             video.setAttribute('width', '100%');
-            if (imdbid) video.setAttribute('imdbId', imdbid);
+            if (imdbId) video.setAttribute('imdbId', imdbId);
             if (title) video.setAttribute('data-title', title);
 
             // Add track elements for subtitles
@@ -54,11 +54,26 @@
             // Append the video element to the container
             container.appendChild(video);
 
-            // Add the script tag for Webtor SDK
+            // Add the script tag for Webtor SDK with configuration options
             const script = document.createElement('script');
             script.setAttribute('src', 'https://cdn.jsdelivr.net/npm/@webtor/embed-sdk-js@0.2.18/dist/index.min.js');
             script.setAttribute('charset', 'utf-8');
             script.setAttribute('async', '');
+            script.onload = () => {
+                window.webtor = window.webtor || [];
+                webtor.push({
+                    id: container,
+                    magnet: videoSrc,
+                    poster,
+                    imdbId: imdbId,
+                    title,
+                    mode: "mobile", // Optimize for mobile mode
+                    player: {
+                        disableControlBar: true, // Simplify controls for mobile
+                    },
+                    onError: (e) => console.error('Webtor error:', e),
+                });
+            };
             container.appendChild(script);
         }
 
